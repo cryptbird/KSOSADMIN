@@ -3,27 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Share Message on WhatsApp</title>
+    <title>KSOS - Full Location View</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
     <style>
-        /* Button Style */
-        .whatsapp-btn {
-            background-color: #25D366; /* WhatsApp green */
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #110434;
             color: white;
-            font-size: 16px;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
         }
-        .whatsapp-btn:hover {
-            background-color: #128C7E; /* Darker green for hover effect */
+        .navbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 10px;
+            background-color: #1a237e;
+            z-index: 1000;
+        }
+        .navbar-brand {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .map-container {
+            position: absolute;
+            top: 50px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        .map {
+            width: 100%;
+            height: 100%;
+        }
+        .user-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 1em;
+            color: white;
+            z-index: 1000;
+        }
+        .call-button {
+            background-color: #4caf50;
+            color: white;
+            padding: 8px 16px;
+            font-size: 1em;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            display: block;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <div class="navbar-brand">KSOS - Full Location View</div>
+    </div>
 
-    <a href="https://wa.me/?text=Hello%20there" class="whatsapp-btn" target="_blank">Share "Hello there" on WhatsApp</a>
+    <div id="map-container" class="map-container">
+        <div id="map" class="map"></div>
+        <div id="user-info" class="user-info"></div>
+    </div>
 
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyRvN2d8Fr0IEkiCcD80-IPvYCzwm1v-o",
+            authDomain: "panicbutton-324001.firebaseapp.com",
+            projectId: "panicbutton-324001",
+            storageBucket: "panicbutton-324001.firebasestorage.app",
+            messagingSenderId: "244011277428",
+            appId: "1:244011277428:web:e229b27837b92d3fef8521"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Get the document ID from the URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const docId = urlParams.get('d');
+
+        if (!docId) {
+            alert('No document ID provided.');
+            window.location.href = "/"; // Redirect if no document ID is provided
+        }
+
+        function loadLocation(docId) {
+            db.collection("locations").doc(docId).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        const waypoints = data.waypoints.map(point => [point.latitude, point.longitude]);
+
+                        // Initialize the map
+                        const map = L.map('map').setView(waypoints[0], 13);
+                        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                            attribution: ''
+                        }).addTo(map);
+
+                        // Add route and marker
+                        const polyline = L.polyline(waypoints, { color: 'blue' }).addTo(map);
+                        map.fitBounds(polyline.getBounds());
+
+                        // Marker at the last waypoint
+                        const lastWaypoint = waypoints[waypoints.length - 1];
+                        L.marker(lastWaypoint).addTo(map)
+                            .bindPopup(`<b>${data.userName}</b><br>Last Location: ${lastWaypoint[0]}, ${lastWaypoint[1]}`)
+                            .openPopup();
+
+                        // Display user info with call button
+                        const userInfoDiv = document.getElementById('user-info');
+                        userInfoDiv.innerHTML = `
+                            <div><strong>Name:</strong> ${data.userName}</div>
+                            <div><strong>Father's Name:</strong> ${data.fatherName}</div>
+                            <div><strong>Phone:</strong> ${data.phone}</div>
+                            <div><strong>Guardian's Phone:</strong> ${data.guardianPhone}</div>
+                            <div><strong>Device ID:</strong> ${data.deviceID}</div>
+                            <div><strong>Father's Phone:</strong> ${data.fatherPhone}</div>
+                            <a class="call-button" href="tel:${data.phone}">Call ${data.userName}</a>
+                        `;
+                    } else {
+                        alert('Location document not found.');
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching document: ", error);
+                    alert('Error loading location data.');
+                });
+        }
+
+        loadLocation(docId);
+    </script>
 </body>
 </html>
