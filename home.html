@@ -19,7 +19,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
         }
-
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -28,12 +27,10 @@
             padding: 10px;
             background-color: #1a237e;
         }
-
         .navbar-brand {
             font-size: 1.5em;
             font-weight: bold;
         }
-
         .maps-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -42,14 +39,12 @@
             max-width: 1200px;
             padding: 20px;
         }
-
         .map-container {
             background: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             border-radius: 8px;
             overflow: hidden;
         }
-
         .map-label {
             text-align: center;
             padding: 10px;
@@ -58,12 +53,10 @@
             color: white;
             margin-bottom: 0;
         }
-
         .map {
             width: 100%;
             height: 300px;
         }
-
         .user-info {
             padding: 10px;
             background-color: #424242;
@@ -73,7 +66,6 @@
             flex-direction: column;
             gap: 10px;
         }
-
         .call-button {
             background-color: #4caf50;
             color: white;
@@ -101,13 +93,13 @@
     <script>
         // Firebase configuration
         const firebaseConfig = {
-  apiKey: "AIzaSyDyRvN2d8Fr0IEkiCcD80-IPvYCzwm1v-o",
-  authDomain: "panicbutton-324001.firebaseapp.com",
-  projectId: "panicbutton-324001",
-  storageBucket: "panicbutton-324001.firebasestorage.app",
-  messagingSenderId: "244011277428",
-  appId: "1:244011277428:web:e229b27837b92d3fef8521"
-};
+            apiKey: "AIzaSyDyRvN2d8Fr0IEkiCcD80-IPvYCzwm1v-o",
+            authDomain: "panicbutton-324001.firebaseapp.com",
+            projectId: "panicbutton-324001",
+            storageBucket: "panicbutton-324001.firebasestorage.app",
+            messagingSenderId: "244011277428",
+            appId: "1:244011277428:web:e229b27837b92d3fef8521"
+        };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -165,6 +157,8 @@
                                 <div><strong>Father's Name:</strong> ${data.fatherName}</div>
                                 <div><strong>Phone:</strong> ${data.phone}</div>
                                 <div><strong>Guardian's Phone:</strong> ${data.guardianPhone}</div>
+                                <div><strong>Device ID:</strong> ${data.deviceID}</div>
+                                <div><strong>Father's Phone:</strong> ${data.fatherPhone}</div>
                                 <a class="call-button" href="tel:${data.phone}">Call ${data.userName}</a>
                             `;
                             container.appendChild(userInfo);
