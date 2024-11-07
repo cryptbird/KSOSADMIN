@@ -125,7 +125,7 @@
                             // Add label with name
                             const label = document.createElement('div');
                             label.classList.add('map-label');
-                            label.textContent = Name: ${data.userName};
+                            label.textContent = `Name: ${data.userName}`;
                             container.appendChild(label);
 
                             // Add map
@@ -147,7 +147,7 @@
                             // Marker at the last waypoint
                             const lastWaypoint = waypoints[waypoints.length - 1];
                             L.marker(lastWaypoint).addTo(map)
-                                .bindPopup(<b>${data.userName}</b><br>Last Location: ${lastWaypoint[0]}, ${lastWaypoint[1]})
+                                .bindPopup(`<b>${data.userName}</b><br>Last Location: ${lastWaypoint[0]}, ${lastWaypoint[1]}`)
                                 .openPopup();
 
                             // Display user info with call button
