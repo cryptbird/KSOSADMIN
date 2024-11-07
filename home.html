@@ -125,7 +125,7 @@
                             // Add label with name
                             const label = document.createElement('div');
                             label.classList.add('map-label');
-                            label.textContent = `Name: ${data.userName}`;
+                            label.textContent = Name: ${data.userName};
                             container.appendChild(label);
 
                             // Add map
@@ -136,8 +136,8 @@
 
                             // Initialize the map
                             const map = L.map(mapDiv).setView(waypoints[0], 13);
-                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                                attribution: ''
                             }).addTo(map);
 
                             // Add route and marker
@@ -147,7 +147,7 @@
                             // Marker at the last waypoint
                             const lastWaypoint = waypoints[waypoints.length - 1];
                             L.marker(lastWaypoint).addTo(map)
-                                .bindPopup(`<b>${data.userName}</b><br>Last Location: ${lastWaypoint[0]}, ${lastWaypoint[1]}`)
+                                .bindPopup(<b>${data.userName}</b><br>Last Location: ${lastWaypoint[0]}, ${lastWaypoint[1]})
                                 .openPopup();
 
                             // Display user info with call button
