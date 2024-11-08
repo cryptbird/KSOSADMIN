@@ -40,6 +40,7 @@
             padding: 20px;
         }
         .map-container {
+            position: relative; /* This makes the icon position relative to the card */
             background: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             border-radius: 8px;
@@ -74,6 +75,35 @@
             font-size: 1em;
             border-radius: 4px;
             cursor: pointer;
+        }
+
+        /* Style for the action buttons */
+        .action-btn {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            margin: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .action-btn:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        /* Flexbox to position the buttons side by side */
+        .action-buttons-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
         }
     </style>
 </head>
@@ -128,6 +158,28 @@
                             label.textContent = `Name: ${data.userName}`;
                             container.appendChild(label);
 
+                            // Create action buttons container
+                            const actionButtonsContainer = document.createElement('div');
+                            actionButtonsContainer.classList.add('action-buttons-container');
+
+                            // Add the WhatsApp button
+                            const whatsAppButton = document.createElement('div');
+                            whatsAppButton.classList.add('action-btn');
+                            whatsAppButton.innerHTML = `<i class="material-icons">share</i>`; // WhatsApp icon
+                            const message = encodeURIComponent(`https://ksos.vercel.app/full.html?d=${doc.id}\nName: ${data.userName}\nContact: ${data.phone}\nFather's Name: ${data.fatherName}\nFather's Phone: ${data.fatherPhone}\nGuardian's Phone: ${data.guardianPhone}`);
+                            whatsAppButton.onclick = () => window.open(`https://wa.me/?text=${message}`, '_blank');
+                            actionButtonsContainer.appendChild(whatsAppButton);
+
+                            // Add the fullscreen button (icon)
+                            const viewFullButton = document.createElement('div');
+                            viewFullButton.classList.add('action-btn');
+                            viewFullButton.innerHTML = `<i class="material-icons">visibility</i>`; // Fullscreen icon
+                            viewFullButton.onclick = () => window.location.href = `/full.html?d=${doc.id}`; // Redirect to the full view
+                            actionButtonsContainer.appendChild(viewFullButton);
+
+                            // Append the action buttons to the map container
+                            container.appendChild(actionButtonsContainer);
+
                             // Add map
                             const mapDiv = document.createElement('div');
                             mapDiv.classList.add('map');
@@ -136,8 +188,10 @@
 
                             // Initialize the map
                             const map = L.map(mapDiv).setView(waypoints[0], 13);
+
+                            // Use ESRI World Imagery (Satellite View) as the tile layer
                             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                                attribution: ''
+                                attribution: '&copy; <a href="https://www.esri.com/">Esri</a> contributors'
                             }).addTo(map);
 
                             // Add route and marker
