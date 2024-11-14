@@ -161,13 +161,13 @@
                             // Create action buttons container
                             const actionButtonsContainer = document.createElement('div');
                             actionButtonsContainer.classList.add('action-buttons-container');
-
+                            const lastWaypoint = waypoints[waypoints.length - 1];
                             // Add the WhatsApp button
                             const whatsAppButton = document.createElement('div');
                             whatsAppButton.classList.add('action-btn');
                             whatsAppButton.innerHTML = `<i class="material-icons">share</i>`; // WhatsApp icon
                             // const message = encodeURIComponent(`https://ksos.vercel.app/full.html?d=${doc.id}\nName: ${data.userName}\nContact: ${data.phone}\nFather's Name: ${data.fatherName}\nFather's Phone: ${data.fatherPhone}\nGuardian's Phone: ${data.guardianPhone}`);
-                            const message = encodeURIComponent(`https://ksos.vercel.app/full.html?d=${doc.id}\nName: ${data.userName}\nContact: ${data.phone}\nFather's Name: ${data.fatherName}\nFather's Phone: ${data.fatherPhone}\nGuardian's Phone: ${data.guardianPhone} Track Here:`);
+                            const message = encodeURIComponent(`https://ksos.vercel.app/full.html?d=${doc.id}\nName: ${data.userName}\nContact: ${data.phone}\nFather's Name: ${data.fatherName}\nFather's Phone: ${data.fatherPhone}\nGuardian's Phone: ${data.guardianPhone} Track Here: https://www.google.com/maps/dir//${lastWaypoint[0]},${lastWaypoint[1]}/${lastWaypoint[0]},${lastWaypoint[1]},16.3z?entry=ttu&g_ep=EgoyMDI0MTExMS4wIKXMDSoASAFQAw%3D%3D `);
                             whatsAppButton.onclick = () => window.open(`https://wa.me/?text=${message}`, '_blank');
                             actionButtonsContainer.appendChild(whatsAppButton);
 
@@ -200,7 +200,7 @@
                             map.fitBounds(polyline.getBounds());
 
                             // Marker at the last waypoint
-                            const lastWaypoint = waypoints[waypoints.length - 1];
+                            
                             
                             
                             
@@ -248,7 +248,7 @@
                                 <div><strong>SOS Time:</strong> ${formatTimestamp(data.time_stamp)}</div>
                                 <div><strong>Coaching:</strong> ${data.coaching}</div>
                                 <div><strong>Coaching Roll No:</strong> ${data.coachingroll}</div>
-                                <div><strong>Get Directions: <a href="https://www.google.com/maps/@${lastWaypoint[0]},${lastWaypoint[1]},15.72z?entry=ttu&g_ep=EgoyMDI0MTExMS4wIKXMDSoASAFQAw%3D%3D">HERE</a></strong></div>
+                                <div><strong>Get Directions: <a href="https://www.google.com/maps/dir//${lastWaypoint[0]},${lastWaypoint[1]}/${lastWaypoint[0]},${lastWaypoint[1]},16.3z?entry=ttu&g_ep=EgoyMDI0MTExMS4wIKXMDSoASAFQAw%3D%3D">HERE</a></strong></div>
                                 <a class="call-button" href="tel:${data.phone}">Call ${data.userName}</a>
                             `;
                             container.appendChild(userInfo);
