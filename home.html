@@ -166,6 +166,7 @@
                             const whatsAppButton = document.createElement('div');
                             whatsAppButton.classList.add('action-btn');
                             whatsAppButton.innerHTML = `<i class="material-icons">share</i>`; // WhatsApp icon
+                            // const message = encodeURIComponent(`https://ksos.vercel.app/full.html?d=${doc.id}\nName: ${data.userName}\nContact: ${data.phone}\nFather's Name: ${data.fatherName}\nFather's Phone: ${data.fatherPhone}\nGuardian's Phone: ${data.guardianPhone}`);
                             const message = encodeURIComponent(`https://ksos.vercel.app/full.html?d=${doc.id}\nName: ${data.userName}\nContact: ${data.phone}\nFather's Name: ${data.fatherName}\nFather's Phone: ${data.fatherPhone}\nGuardian's Phone: ${data.guardianPhone}`);
                             whatsAppButton.onclick = () => window.open(`https://wa.me/?text=${message}`, '_blank');
                             actionButtonsContainer.appendChild(whatsAppButton);
@@ -200,9 +201,40 @@
 
                             // Marker at the last waypoint
                             const lastWaypoint = waypoints[waypoints.length - 1];
-                            L.marker(lastWaypoint).addTo(map)
-                                .bindPopup(`<b>${data.userName}</b><br>Last Location: ${lastWaypoint[0]}, ${lastWaypoint[1]}`)
-                                .openPopup();
+                            
+                            
+                            
+
+                            async function getAddress(lat, lon) {
+                                // Define a bounding box for more precise geocoding
+                                const precisionOffset = 0.00045; // approx 50 meters in latitude/longitude
+                                const boundingBox = [
+                                    lat - precisionOffset, lon - precisionOffset,
+                                    lat + precisionOffset, lon + precisionOffset
+                                ].join(',');
+
+                                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&viewbox=${boundingBox}`);
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    return data.display_name; // The formatted address
+                                } else {
+                                    console.error("Failed to retrieve address");
+                                    return `${lat}, ${lon}`; // Fallback to coordinates if there's an error
+                                }
+                            }
+
+                            // Get the address and add the marker with the address in the popup
+                            getAddress(lastWaypoint[0], lastWaypoint[1]).then(address => {
+                                L.marker(lastWaypoint).addTo(map)
+                                    .bindPopup(`<b>${data.userName}</b><br>Last Location: ${address}`)
+                                    .openPopup();
+                            });
+                            
+                            
+                            
+                            // L.marker(lastWaypoint).addTo(map)
+                            //     .bindPopup(`<b>${data.userName}</b><br>Last Location: ${lastWaypoint[0]}, ${lastWaypoint[1]}`)
+                            //     .openPopup();
 
                             // Display user info with call button
                             const userInfo = document.createElement('div');
@@ -213,23 +245,45 @@
                                 <div><strong>Guardian's Phone:</strong> ${data.guardianPhone}</div>
                                 <div><strong>Device ID:</strong> ${data.deviceID}</div>
                                 <div><strong>Father's Phone:</strong> ${data.fatherPhone}</div>
+                                <div><strong>SOS Time:</strong> ${formatTimestamp(data.time_stamp)}</div>
+                                <div><strong>Coaching:</strong> ${data.coaching}</div>
+                                <div><strong>Coaching Roll No:</strong> ${data.coachingroll}</div>
+                                <div><strong>Get Directions: <a href="https://www.google.com/maps/@${lastWaypoint[0]},${lastWaypoint[1]},15.72z?entry=ttu&g_ep=EgoyMDI0MTExMS4wIKXMDSoASAFQAw%3D%3D">HERE</a></strong></div>
                                 <a class="call-button" href="tel:${data.phone}">Call ${data.userName}</a>
                             `;
                             container.appendChild(userInfo);
                         });
                     }
-                })
-                .catch((error) => {
-                    console.error("Error fetching locations documents: ", error);
                 });
         }
 
-        loadActiveLocations();
+        // Function to format the Firestore timestamp
+        function formatTimestamp(timestamp) {
+            // Check if timestamp is a Firestore Timestamp object
+            let date;
+            if (timestamp instanceof firebase.firestore.Timestamp) {
+                date = timestamp.toDate(); // Convert Firestore Timestamp to JavaScript Date
+            } else {
+                // Assuming timestamp is a Unix timestamp in nanoseconds
+                date = new Date(timestamp / 1000000); // Convert nanoseconds to milliseconds
+            }
 
-        // Refresh every 50 seconds
-        setInterval(() => {
-            location.reload();
-        }, 30000);
+            // Format the date to your desired format
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                timeZone: 'Asia/Kolkata', // Set the timezone to UTC+5:30
+                timeZoneName: 'short' // Optional: to show time zone
+            };
+
+            return date.toLocaleString('en-US', options);
+        }
+
+        // Call the loadActiveLocations function on page load
+        window.onload = loadActiveLocations;
     </script>
 </body>
 </html>
