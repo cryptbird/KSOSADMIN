@@ -130,9 +130,30 @@
 
                         // Marker at the last waypoint
                         const lastWaypoint = waypoints[waypoints.length - 1];
-                        L.marker(lastWaypoint).addTo(map)
-                            .bindPopup(`<b>${data.userName}</b><br>Last Location: ${lastWaypoint[0]}, ${lastWaypoint[1]}`)
-                            .openPopup();
+                        async function getAddress(lat, lon) {
+                                // Define a bounding box for more precise geocoding
+                                const precisionOffset = 0.00045; // approx 50 meters in latitude/longitude
+                                const boundingBox = [
+                                    lat - precisionOffset, lon - precisionOffset,
+                                    lat + precisionOffset, lon + precisionOffset
+                                ].join(',');
+
+                                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&viewbox=${boundingBox}`);
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    return data.display_name; // The formatted address
+                                } else {
+                                    console.error("Failed to retrieve address");
+                                    return `${lat}, ${lon}`; // Fallback to coordinates if there's an error
+                                }
+                            }
+
+                            // Get the address and add the marker with the address in the popup
+                            getAddress(lastWaypoint[0], lastWaypoint[1]).then(address => {
+                                L.marker(lastWaypoint).addTo(map)
+                                    .bindPopup(`<b>${data.userName}</b><br>Last Location: ${address}`)
+                                    .openPopup();
+                            });
 
                         // Display user info with call button
                         const userInfoDiv = document.getElementById('user-info');
