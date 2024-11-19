@@ -284,6 +284,9 @@
 
         // Call the loadActiveLocations function on page load
         window.onload = loadActiveLocations;
+        setInterval(() => {
+            location.reload();
+        }, 30000);
     </script>
 </body>
 </html>
